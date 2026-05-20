@@ -1,6 +1,8 @@
 import React from "react"
 import { useAtom } from "jotai"
 import ReactMarkdown from "react-markdown"
+import { loadingAtom } from "../states/atoms.js"
+import { Spinner} from "flowbite-react"
 
 import { ingredientsAtom, recipeAtom } from "../states/atoms"
 import { getRecipeChef } from "../hugginFace"
@@ -8,6 +10,7 @@ import { getRecipeChef } from "../hugginFace"
 const Form = () => {
     const [ingredients, setIngredients] = useAtom(ingredientsAtom)
     const [recipe, setRecipe] = useAtom(recipeAtom)
+    const [loading, setLoading] = useAtom(loadingAtom)
 
     function handleSubmit(e) {
         e.preventDefault()
@@ -39,6 +42,10 @@ const Form = () => {
             setRecipe(generatedRecipe)
         } catch (err) {
             console.error(err)
+        } finally {
+            setLoading(true)
+            await new Promise(resolve => setTimeout(resolve, 2000))
+            setLoading(false)
         }
     }
 
@@ -95,10 +102,17 @@ const Form = () => {
                     </div>
 
                     <button
-                        onClick={handleGenerateRecipe}
+                        onClick={handleGenerateRecipe} disabled={loading}
                         className="ml-auto bg-green-600 text-white text-sm px-4 py-2 rounded-sm hover:bg-green-700 transition-colors duration-200"
                     >
-                        Generate Recipe
+                        {!loading ? (
+                            "Generate Recipe"
+                        ) : (
+                           <span className="flex items-center gap-2">
+                                <Spinner color="warning" size="lg" />
+                                Generating recipe...
+                            </span> 
+                        )}
                     </button>
                 </div>
             )}
@@ -108,7 +122,7 @@ const Form = () => {
                     <h1 className="text-2xl font-bold mb-4">
                         Your Recipe
                     </h1>
-                    <div className="prose prose-sm max-w-none text-white bg-slate-800 p-4 rounded-sm">
+                    <div className="prose text-lg font-mono prose-sm max-w-none text-white bg-slate-800 p-4 rounded-sm">
                         <ReactMarkdown>
                             {recipe}
                         </ReactMarkdown>
