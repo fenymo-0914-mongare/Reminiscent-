@@ -32,10 +32,16 @@ const Form = () => {
             >+ Add ingredient</button>
         </form>
         <div className='mt-4'>
-            <h2 className='text-lg font-semibold mb-2'>Ingredients List:</h2>
-            <ul className='list-disc list-inside'>
-                {ingredientsList}
-            </ul>
+            {ingredients.length > 0 ?
+            <div className='mb-4'>
+                <h2 className='text-lg font-semibold mb-2'>Your Ingredients:</h2>
+                <ul className='list-disc list-inside'>
+                    {ingredientsList}
+                </ul>
+            </div>
+            : null}
+
+            {ingredients.length > 3 ?
             <div className="flex items-center gap-4 mt-6 p-4 border-2 border-gray-300 rounded-sm bg-white">
                 <div className="flex flex-col gap-1">
                     <h1 className='text-2xl font-bold'>Ready for Recipe?</h1>
@@ -45,6 +51,7 @@ const Form = () => {
                     Generate Recipe
                 </button>
             </div>
+            : null}
         </div>
     </div>
     )
