@@ -3,6 +3,7 @@ import { useAtom } from "jotai"
 import ReactMarkdown from "react-markdown"
 import { loadingAtom } from "../states/atoms.js"
 import { Spinner} from "flowbite-react"
+import {errorAtom} from "../states/atoms.js"
 
 import { ingredientsAtom, recipeAtom } from "../states/atoms"
 import { getRecipeChef } from "../hugginFace"
@@ -11,6 +12,7 @@ const Form = () => {
     const [ingredients, setIngredients] = useAtom(ingredientsAtom)
     const [recipe, setRecipe] = useAtom(recipeAtom)
     const [loading, setLoading] = useAtom(loadingAtom)
+    const [error, setError] = useAtom(errorAtom)
 
     function handleSubmit(e) {
         e.preventDefault()
@@ -21,30 +23,38 @@ const Form = () => {
             .get("Ingredients")
             ?.trim()
 
-        if (
-            newIngredient &&
-            !ingredients.includes(newIngredient)
-        ) {
-            setIngredients(prev => [
-                ...prev,
-                newIngredient
-            ])
+        if (!newIngredient) {
+            setError("Please enter an ingredient.")
+            return
         }
 
+        if (ingredients.includes(newIngredient)) {
+            setError("This ingredient is already added.")
+            e.currentTarget.reset()
+            return
+        }
+
+        setIngredients(prev => [
+            ...prev,
+            newIngredient
+        ])
+        setError(null)
         e.currentTarget.reset()
     }
 
     async function handleGenerateRecipe() {
-        try {
-            const generatedRecipe =
-                await getRecipeChef(ingredients)
+        setError(null)
+        setLoading(true)
 
+        try {
+            const generatedRecipe = await getRecipeChef(ingredients)
             setRecipe(generatedRecipe)
         } catch (err) {
-            console.error(err)
+            setError(
+                err?.message ||
+                "Unable to generate recipe. Please try again."
+            )
         } finally {
-            setLoading(true)
-            await new Promise(resolve => setTimeout(resolve, 2000))
             setLoading(false)
         }
     }
@@ -56,7 +66,7 @@ const Form = () => {
                 className="flex gap-3 items-center justify-center p-3 w-full border border-gray-300 rounded-sm bg-white"
             >
                 <div className="flex-1 focus-within:ring-2 focus-within:ring-orange-300 rounded-sm">
-                    <input
+                    <input onChange={() => setError(null)}
                         aria-label="ingredients"
                         name="Ingredients"
                         type="text"
@@ -71,6 +81,15 @@ const Form = () => {
                     + Add Ingredient
                 </button>
             </form>
+            {error && (
+                <div className="mt-4 text-center rounded-sm border border-red-400 bg-red-50 px-4 py-3 text-sm text-red-700"
+                    role="alert"
+                    aria-live="assertive"
+                >
+                    {error}
+                </div>
+            )}
+
             {ingredients.length > 0 && (
                 <div className="mt-6">
                     <h2 className="text-lg font-semibold mb-2">
