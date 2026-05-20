@@ -1,14 +1,14 @@
-import {HfInference} from '@huggingface/inference'
+import { HfInference } from "@huggingface/inference"
 
 const SYS_PROMPT =`You are an assistant that receives a list of ingredients that a user has and suggestd a recipe they could make with some or all of those ingredients. you do not need to use every ingredient they mention in your recipe.
     The recipe can include additional ingredients they did not mention, but it should primarily focus on the ingredients they have, try not to include too many extra ingredients. Format your response in markdown to make it easier to render to a web page.`       
 
 const hugginFaceAPI = new HfInference({
-    token: process.env.HUGGING_FACE_API_KEY,
+    token: import.meta.env.VITE_HUGGING_FACE_API_KEY,
     dangerouslyAllowBrowser: true
 })
 
-export async function getRecipechef(ingredientsArray) {
+export async function getRecipeChef(ingredientsArray) {
     const ingredientsList = ingredientsArray.join(', ')
 
     try{
@@ -21,7 +21,7 @@ export async function getRecipechef(ingredientsArray) {
         ]
     })
 
-    return message.choices[0].message
+    return message.choices[0].message.content
 
     }catch(error){
         return ( (error instanceof Error) ? error.message : 'An unknown error occurred while fetching the recipe.')

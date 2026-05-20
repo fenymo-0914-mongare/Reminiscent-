@@ -1,9 +1,11 @@
 import React from 'react'
 import { useAtom } from 'jotai'
-import { ingredientsAtom } from '../states/atoms'
+import { ingredientsAtom, recipeAtom } from '../states/atoms'
+import { getRecipeChef } from '../hugginFace.js'
 
 const Form = () => {
     const [ingredients, setIngredients] = useAtom(ingredientsAtom)
+    const [recipe, setRecipe] = useAtom(recipeAtom)
 
     const ingredientsList = ingredients.map((ingredient, index) => (
         <li key={index} className='text-sm text-gray-700'>{ingredient}</li>
@@ -19,9 +21,18 @@ const Form = () => {
         e.currentTarget.reset()
     }
 
+    async function handleGenerateRecipe() {
+        try {
+            const Recipe = await getRecipeChef(ingredients)
+            setRecipe(Recipe)
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to generate recipe')
+        }
+    }
+
   return (
     <div className='max-w-md mx-auto mt-10 p-6' >
-        <form className='flex gap-3 items-center-safe justify-items-center-safe p-3 w-[100%] order-2 border-gray-300 rounded-sm bg-white' 
+        <form className='flex gap-3 items-center justify-center p-3 w-[100%] order-2 border-gray-300 rounded-sm bg-white' 
             onSubmit={handleSubmit}>
             <div className="focus-within:ring-2 focus-within:ring-orange-300 rounded-sm">
                 <input aria-label="ingredients" name='Ingredients' type="text" placeholder='e.g salagna'
@@ -47,8 +58,10 @@ const Form = () => {
                     <h1 className='text-2xl font-bold'>Ready for Recipe?</h1>
                     <p>Generate your recipe based on your ingredients!</p>
                 </div>
-                <button className='bg-orange-500 text-white px-4 py-2 rounded-sm hover:bg-orange-600 transition-colors duration-200'>
-                    Generate Recipe
+                <button 
+                    className={`text-white px-4 py-2 rounded-sm transition-colors duration-200 `}
+                    onClick={handleGenerateRecipe}
+                >
                 </button>
             </div>
             : null}

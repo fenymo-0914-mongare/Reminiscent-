@@ -10,11 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@huggingface/inference": "^4.13.16",
     "@tailwindcss/vite": "^4.3.0",
-    "huggingface": "^1.4.0",
     "jotai": "^2.20.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-markdown": "^10.1.0",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
